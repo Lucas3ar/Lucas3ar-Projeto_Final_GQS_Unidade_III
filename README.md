@@ -277,5 +277,5 @@ Aluno: Lucas Araujo ( desenvolvido como projeto final da disciplina TAD0203 - Ge
 
 ## Suporte
 
-para tirar qualquer duvida entre em contato via email Lucasear2003@gmail.com
+Para tirar qualquer duvida entre em contato via email Lucasear2003@gmail.com
 
