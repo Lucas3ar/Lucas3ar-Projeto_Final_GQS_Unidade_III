@@ -273,9 +273,9 @@ Este projeto foi desenvolvido para fins acadêmicos como parte do curso de Anál
 
 ## Autor
 
-Desenvolvido como projeto final da disciplina TAD0203 - Gestão da Qualidade de Software.
+Aluno: Lucas Araujo ( desenvolvido como projeto final da disciplina TAD0203 - Gestão da Qualidade de Software ) 
 
 ## Suporte
 
-Para dúvidas ou problemas, entre em contato através dos canais de comunicação da disciplina.
+para tirar qualquer duvida entre em contato via email Lucasear2003@gmail.com
 
