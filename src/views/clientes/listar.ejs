@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Controle de Vendas e Clientes</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/clientes">Clientes</a></li>
+                <li><a href="/vendas">Vendas</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2><%= title %></h2>
+                <a href="/clientes/novo" class="btn">Novo Cliente</a>
+            </div>
+
+            <% if (typeof sucesso !== 'undefined' && sucesso) { %>
+                <div class="alert alert-success">
+                    <%= sucesso %>
+                </div>
+            <% } %>
+
+            <% if (clientes && clientes.length > 0) { %>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% clientes.forEach(function(cliente) { %>
+                                <tr>
+                                    <td><%= cliente.id %></td>
+                                    <td><%= cliente.nome %></td>
+                                    <td><%= cliente.email %></td>
+                                    <td><%= cliente.telefone || '-' %></td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="editarCliente(<%= cliente.id %>)">Editar</button>
+                                        <button class="btn btn-danger" onclick="excluirCliente(<%= cliente.id %>, '<%= cliente.nome %>')">Excluir</button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center">
+                    <p>Nenhum cliente cadastrado ainda.</p>
+                    <a href="/clientes/novo" class="btn mt-2">Cadastrar Primeiro Cliente</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        // Função para editar cliente (placeholder - seria implementada com modal ou página separada)
+        function editarCliente(id) {
+            alert('Funcionalidade de edição será implementada em versão futura.\nID do cliente: ' + id);
+        }
+
+        // Função para excluir cliente
+        function excluirCliente(id, nome) {
+            if (confirm('Tem certeza que deseja excluir o cliente "' + nome + '"?\nEsta ação não pode ser desfeita.')) {
+                fetch('/api/clientes/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.mensagem) {
+                        alert('Cliente excluído com sucesso!');
+                        location.reload();
+                    } else {
+                        alert('Erro ao excluir cliente: ' + (data.erro || 'Erro desconhecido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir cliente. Tente novamente.');
+                });
+            }
+        }
+
+        // Verificar se há mensagem de sucesso na URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sucesso = urlParams.get('sucesso');
+            
+            if (sucesso) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success';
+                alertDiv.textContent = sucesso;
+                
+                const card = document.querySelector('.card');
+                const title = card.querySelector('h2').parentElement;
+                title.insertAdjacentElement('afterend', alertDiv);
+                
+                // Remover a mensagem da URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            // Animação de entrada
+            document.querySelector('.card').classList.add('fade-in');
+        });
+    </script>
+</body>
+</html>
+

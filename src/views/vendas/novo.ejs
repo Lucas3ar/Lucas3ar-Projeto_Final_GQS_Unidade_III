@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Controle de Vendas e Clientes</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/clientes">Clientes</a></li>
+                <li><a href="/vendas">Vendas</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2><%= title %></h2>
+            
+            <% if (erro) { %>
+                <div class="alert alert-error">
+                    <%= erro %>
+                </div>
+            <% } %>
+
+            <% if (clientes && clientes.length > 0) { %>
+                <form action="/vendas/novo" method="POST" id="vendaForm">
+                    <div class="form-group">
+                        <label for="id_cliente">Cliente *</label>
+                        <select id="id_cliente" name="id_cliente" required>
+                            <option value="">Selecione um cliente</option>
+                            <% clientes.forEach(function(cliente) { %>
+                                <option value="<%= cliente.id %>"><%= cliente.nome %> - <%= cliente.email %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="data">Data da Venda *</label>
+                        <input type="date" id="data" name="data" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="valor">Valor (R$) *</label>
+                        <input type="number" id="valor" name="valor" step="0.01" min="0.01" required placeholder="0,00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descricao">Descrição</label>
+                        <textarea id="descricao" name="descricao" rows="4" maxlength="500" placeholder="Descreva os produtos/serviços vendidos..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn">Cadastrar Venda</button>
+                        <a href="/vendas" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            <% } else { %>
+                <div class="alert alert-error">
+                    <p>Não é possível cadastrar uma venda sem clientes cadastrados.</p>
+                    <a href="/clientes/novo" class="btn mt-2">Cadastrar Cliente Primeiro</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        // Definir data atual como padrão
+        document.addEventListener('DOMContentLoaded', function() {
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('data').value = hoje;
+            
+            // Animação de entrada
+            document.querySelector('.card').classList.add('fade-in');
+        });
+
+        // Validação do formulário
+        document.getElementById('vendaForm')?.addEventListener('submit', function(e) {
+            const cliente = document.getElementById('id_cliente').value;
+            const data = document.getElementById('data').value;
+            const valor = document.getElementById('valor').value;
+            
+            if (!cliente || !data || !valor) {
+                e.preventDefault();
+                alert('Cliente, data e valor são obrigatórios!');
+                return;
+            }
+            
+            if (parseFloat(valor) <= 0) {
+                e.preventDefault();
+                alert('O valor deve ser maior que zero!');
+                return;
+            }
+            
+            // Validar se a data não é futura
+            const dataVenda = new Date(data);
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            
+            if (dataVenda > hoje) {
+                const confirmar = confirm('A data da venda é futura. Deseja continuar?');
+                if (!confirmar) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+        });
+
+        // Formatação do valor
+        document.getElementById('valor')?.addEventListener('input', function(e) {
+            let value = e.target.value;
+            
+            // Garantir que o valor tenha no máximo 2 casas decimais
+            if (value.includes('.')) {
+                const parts = value.split('.');
+                if (parts[1] && parts[1].length > 2) {
+                    e.target.value = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><%= title %></h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/clientes">Clientes</a></li>
+                <li><a href="/vendas">Vendas</a></li>
+            </ul>
+        </nav>
+
+        <div class="cards-grid">
+            <div class="card fade-in">
+                <h2>Gerenciar Clientes</h2>
+                <p>Cadastre, visualize, edite e remova clientes do sistema. Mantenha todas as informações de contato organizadas e atualizadas.</p>
+                <div class="mt-2">
+                    <a href="/clientes/novo" class="btn">Cadastrar Cliente</a>
+                    <a href="/clientes" class="btn btn-secondary">Ver Clientes</a>
+                </div>
+            </div>
+
+            <div class="card fade-in">
+                <h2>Controlar Vendas</h2>
+                <p>Registre novas vendas, acompanhe o histórico de transações e mantenha o controle financeiro da sua empresa.</p>
+                <div class="mt-2">
+                    <a href="/vendas/novo" class="btn">Cadastrar Venda</a>
+                    <a href="/vendas" class="btn btn-secondary">Ver Vendas</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-2">
+            <h2>Sobre o Sistema</h2>
+            <p>Este é um sistema completo de controle de vendas e clientes desenvolvido com arquitetura MVC, utilizando Node.js, Express.js e SQLite. O sistema oferece uma interface web intuitiva e uma API RESTful completa para integração com outros sistemas.</p>
+            
+            <h3>Funcionalidades:</h3>
+            <ul>
+                <li>Cadastro completo de clientes com validação de dados</li>
+                <li>Registro de vendas vinculadas aos clientes</li>
+                <li>Interface web responsiva e moderna</li>
+                <li>API RESTful para operações CRUD</li>
+                <li>Banco de dados SQLite para persistência</li>
+                <li>Validações de entrada e tratamento de erros</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Adicionar animação aos cards quando carregam
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('fade-in');
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
+

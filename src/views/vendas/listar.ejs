@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Controle de Vendas e Clientes</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/clientes">Clientes</a></li>
+                <li><a href="/vendas">Vendas</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2><%= title %></h2>
+                <a href="/vendas/novo" class="btn">Nova Venda</a>
+            </div>
+
+            <% if (vendas && vendas.length > 0) { %>
+                <!-- Resumo das vendas -->
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 2rem;">
+                    <h3>Resumo</h3>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>Total de Vendas:</strong> <%= vendas.length %>
+                        </div>
+                        <div>
+                            <strong>Valor Total:</strong> R$ <%= vendas.reduce((total, venda) => total + parseFloat(venda.valor), 0).toFixed(2).replace('.', ',') %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Data</th>
+                                <th>Valor</th>
+                                <th>Descrição</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% vendas.forEach(function(venda) { %>
+                                <tr>
+                                    <td><%= venda.id %></td>
+                                    <td>
+                                        <strong><%= venda.cliente_nome %></strong><br>
+                                        <small><%= venda.cliente_email %></small>
+                                    </td>
+                                    <td><%= new Date(venda.data).toLocaleDateString('pt-BR') %></td>
+                                    <td>R$ <%= parseFloat(venda.valor).toFixed(2).replace('.', ',') %></td>
+                                    <td>
+                                        <% if (venda.descricao) { %>
+                                            <%= venda.descricao.length > 50 ? venda.descricao.substring(0, 50) + '...' : venda.descricao %>
+                                        <% } else { %>
+                                            -
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="verDetalhes(<%= venda.id %>)">Ver</button>
+                                        <button class="btn btn-danger" onclick="excluirVenda(<%= venda.id %>, '<%= venda.cliente_nome %>')">Excluir</button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center">
+                    <p>Nenhuma venda cadastrada ainda.</p>
+                    <a href="/vendas/novo" class="btn mt-2">Cadastrar Primeira Venda</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Modal para detalhes da venda -->
+    <div id="modalDetalhes" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%;">
+            <h3>Detalhes da Venda</h3>
+            <div id="conteudoModal"></div>
+            <button class="btn mt-2" onclick="fecharModal()">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // Função para ver detalhes da venda
+        function verDetalhes(id) {
+            fetch('/api/vendas/' + id)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        alert('Erro ao carregar detalhes: ' + data.erro);
+                        return;
+                    }
+                    
+                    const conteudo = `
+                        <p><strong>ID:</strong> ${data.id}</p>
+                        <p><strong>Cliente:</strong> ${data.cliente_nome}</p>
+                        <p><strong>Email:</strong> ${data.cliente_email}</p>
+                        <p><strong>Data:</strong> ${new Date(data.data).toLocaleDateString('pt-BR')}</p>
+                        <p><strong>Valor:</strong> R$ ${parseFloat(data.valor).toFixed(2).replace('.', ',')}</p>
+                        <p><strong>Descrição:</strong> ${data.descricao || 'Não informada'}</p>
+                    `;
+                    
+                    document.getElementById('conteudoModal').innerHTML = conteudo;
+                    document.getElementById('modalDetalhes').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao carregar detalhes da venda.');
+                });
+        }
+
+        // Função para fechar modal
+        function fecharModal() {
+            document.getElementById('modalDetalhes').style.display = 'none';
+        }
+
+        // Função para excluir venda
+        function excluirVenda(id, clienteNome) {
+            if (confirm('Tem certeza que deseja excluir esta venda do cliente "' + clienteNome + '"?\nEsta ação não pode ser desfeita.')) {
+                fetch('/api/vendas/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.mensagem) {
+                        alert('Venda excluída com sucesso!');
+                        location.reload();
+                    } else {
+                        alert('Erro ao excluir venda: ' + (data.erro || 'Erro desconhecido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir venda. Tente novamente.');
+                });
+            }
+        }
+
+        // Verificar se há mensagem de sucesso na URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sucesso = urlParams.get('sucesso');
+            
+            if (sucesso) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success';
+                alertDiv.textContent = sucesso;
+                
+                const card = document.querySelector('.card');
+                const title = card.querySelector('h2').parentElement;
+                title.insertAdjacentElement('afterend', alertDiv);
+                
+                // Remover a mensagem da URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            // Animação de entrada
+            document.querySelector('.card').classList.add('fade-in');
+        });
+
+        // Fechar modal clicando fora dele
+        document.getElementById('modalDetalhes').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharModal();
+            }
+        });
+    </script>
+</body>
+</html>
+
